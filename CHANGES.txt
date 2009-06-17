@@ -4,7 +4,15 @@ hurry.workflow changes
 0.10 (unreleased)
 =================
 
-* ...
+* Moved to svn.zope.org for development.
+
+* Added a buildout.cfg
+
+* Minimized dependencies. Note that ``Workflow`` does not inherit from
+  ``Persistent`` and ``zope.container.contained.Contained``
+  anymore. If you need persistent workflow, you need to subclass this
+  in your own code. This breaks backwards compatibility, as persistent
+  workflows would need to be re-initialized.
 
 0.9.2.1 (2007-08-15)
 ====================
