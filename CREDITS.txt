@@ -1,0 +1,11 @@
+Credits
+-------
+
+* Martijn Faassen - initial and main developer
+
+* Jan-Wijbrand Kolman - suggestions and feedback
+
+* Tobias Rodäbel - compatibility fixes
+
+The hurry.workflow library for the Zope Toolkit was originally
+developed at Infrae (http://www.infrae.com).

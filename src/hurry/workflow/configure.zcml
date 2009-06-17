@@ -1,0 +1,12 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    >
+
+  <class class=".workflow.Workflow">
+    <require
+        interface=".interfaces.IWorkflow"
+        permission="zope.Public"
+        />
+  </class>
+
+</configure>

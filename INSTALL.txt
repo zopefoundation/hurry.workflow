@@ -1,0 +1,9 @@
+Installation
+------------
+
+
+hurry.workflow needs Zope 3.3.
+
+Make sure hurry.workflow's src directory is on the Python path
+somehow, and then copy hurry.workflow-configure.zcml into your Zope's
+`etc/package-includes` directory.
