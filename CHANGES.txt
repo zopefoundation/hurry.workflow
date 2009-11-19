@@ -1,6 +1,12 @@
 hurry.workflow changes
 **********************
 
+0.11 (unreleased)
+=================
+
+- Nothing changed yet.
+
+
 0.10 (2009-11-19)
 =================
 
