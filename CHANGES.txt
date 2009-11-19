@@ -6,7 +6,7 @@ hurry.workflow changes
 
 * Moved to svn.zope.org for development.
 
-* Added a buildout.cfg
+* Added a buildout.cfg, bootstrap.py
 
 * Minimized dependencies. Note that ``Workflow`` does not inherit from
   ``Persistent`` and ``zope.container.contained.Contained``
