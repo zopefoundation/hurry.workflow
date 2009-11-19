@@ -1,7 +1,7 @@
 hurry.workflow changes
 **********************
 
-0.10 (unreleased)
+0.10 (2009-11-19)
 =================
 
 * Moved to svn.zope.org for development.
