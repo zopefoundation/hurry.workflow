@@ -37,7 +37,6 @@ class WorkflowVersions(workflow.WorkflowVersions):
         return bool(self.getVersions(state, id))
 
     def hasVersionId(self, id):
-        result = []
         for version in self.versions:
             state_adapter = interfaces.IWorkflowState(version)
             if state_adapter.getId() == id:
