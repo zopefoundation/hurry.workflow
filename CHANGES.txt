@@ -4,7 +4,11 @@ hurry.workflow changes
 0.11 (unreleased)
 =================
 
-- Nothing changed yet.
+* Do IAnnotations(self.context) only once in WorkflowState.
+
+* An IWorkflowVersions implementation is now optional.
+
+* Added multiple workflows support.
 
 
 0.10 (2009-11-19)
