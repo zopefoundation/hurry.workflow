@@ -92,50 +92,54 @@ class Workflow(object):
 
 class WorkflowState(object):
     implements(IWorkflowState)
+    state_key = "hurry.workflow.state"
+    id_key  = "hurry.workflow.id"
 
     def __init__(self, context):
         # XXX okay, I'm tired of it not being able to set annotations, so
         # we'll do this. Ugh.
         from zope.security.proxy import removeSecurityProxy
         self.context = removeSecurityProxy(context)
+        self._annotations = IAnnotations(self.context)
 
     def initialize(self):
-        wf_versions = component.getUtility(IWorkflowVersions)
-        self.setId(wf_versions.createVersionId())
+        wf_versions = component.queryUtility(IWorkflowVersions)
+        if wf_versions is not None:
+            self.setId(wf_versions.createVersionId())
         
     def setState(self, state):
         if state != self.getState():
-            IAnnotations(self.context)[
-                'hurry.workflow.state'] = state
+            self._annotations[self.state_key] = state
             
     def setId(self, id):
         # XXX catalog should be informed (or should it?)
-        IAnnotations(self.context)['hurry.workflow.id'] = id
+        self._annotations[self.id_key] = id
         
     def getState(self):
-        try:
-            return IAnnotations(self.context)['hurry.workflow.state']
-        except KeyError:
-            return None
+        return self._annotations.get(self.state_key, None)
 
     def getId(self):
-        try:
-            return IAnnotations(self.context)['hurry.workflow.id']
-        except KeyError:
-            return None
+        return self._annotations.get(self.id_key, None)
             
 class WorkflowInfo(object):
     implements(IWorkflowInfo)
+    name = u''
     
     def __init__(self, context):
         self.context = context
-                
+        self.wf = component.getUtility(IWorkflow, name=self.name)
+
+    def info(self, obj):
+        return component.getAdapter(obj, IWorkflowInfo, name=self.name)
+
+    def state(self, obj):
+        return component.getAdapter(obj, IWorkflowState, name=self.name)
+
     def fireTransition(self, transition_id, comment=None, side_effect=None,
                        check_security=True):
-        state = IWorkflowState(self.context)
-        wf = component.getUtility(IWorkflow)
+        state = self.state(self.context)
         # this raises InvalidTransitionError if id is invalid for current state
-        transition = wf.getTransition(state.getState(), transition_id)
+        transition = self.wf.getTransition(state.getState(), transition_id)
         # check whether we may execute this workflow transition
         try:
             interaction = getInteraction()
@@ -158,10 +162,10 @@ class WorkflowInfo(object):
         result = transition.action(self, self.context)
         if result is not None:
             if transition.source is None:
-                IWorkflowState(result).initialize()
+                self.state(result).initialize()
             # stamp it with version
-            state = IWorkflowState(result)
-            state.setId(IWorkflowState(self.context).getId())
+            state = self.state(result)
+            state.setId(self.state(self.context).getId())
             # execute any side effect:
             if side_effect is not None:
                 side_effect(result)
@@ -171,7 +175,7 @@ class WorkflowInfo(object):
                                                    transition, comment)
         else:
             if transition.source is None:
-                IWorkflowState(self.context).initialize()
+                self.state(self.context).initialize()
             # execute any side effect
             if side_effect is not None:
                 side_effect(self.context)
@@ -200,12 +204,12 @@ class WorkflowInfo(object):
                                    comment, side_effect, check_security)
         
     def fireTransitionForVersions(self, state, transition_id):
-        id = IWorkflowState(self.context).getId()
+        id = self.state(self.context).getId()
         wf_versions = component.getUtility(IWorkflowVersions)
         for version in wf_versions.getVersions(state, id):
             if version is self.context:
                 continue
-            IWorkflowInfo(version).fireTransition(transition_id)
+            self.info(version).fireTransition(transition_id)
 
     def fireAutomatic(self):
         for transition_id in self.getAutomaticTransitionIds():
@@ -222,7 +226,7 @@ class WorkflowInfo(object):
             
     def hasVersion(self, state):
         wf_versions = component.getUtility(IWorkflowVersions)
-        id = IWorkflowState(self.context).getId()
+        id = self.state(self.context).getId()
         return wf_versions.hasVersion(state, id)
     
     def getManualTransitionIds(self):
@@ -245,10 +249,9 @@ class WorkflowInfo(object):
         return self.getManualTransitionIds() + self.getSystemTransitionIds()
     
     def getFireableTransitionIdsToward(self, state):
-        wf = component.getUtility(IWorkflow)
         result = []
         for transition_id in self.getFireableTransitionIds():
-            transition = wf.getTransitionById(transition_id)
+            transition = self.wf.getTransitionById(transition_id)
             if transition.destination == state:
                 result.append(transition_id)
         return result
@@ -263,9 +266,8 @@ class WorkflowInfo(object):
 
     def _getTransitions(self, trigger):
         # retrieve all possible transitions from workflow utility
-        wf = component.getUtility(IWorkflow)
-        transitions = wf.getTransitions(
-            IWorkflowState(self.context).getState())
+        transitions = self.wf.getTransitions(
+            self.state(self.context).getState())
         # now filter these transitions to retrieve all possible
         # transitions in this context, and return their ids
         return [transition for transition in transitions if

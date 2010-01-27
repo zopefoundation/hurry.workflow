@@ -189,6 +189,85 @@ And we have another event that was fired::
     'b'
     >>> events[-1].destination is None
     True
+
+
+Multiple workflows
+------------------
+
+We have previously registered a workflow as a unnamed utility.
+You can also register a workflow as a named utility to provide
+several workflows for a site.
+
+Let's create a, invoice document::
+
+   >>> class IInvoiceDocument(IDocument):
+   ...    title = Attribute('Title')
+
+   >>> class InvoiceDocument(object):
+   ...    implements(IInvoiceDocument)
+   ...    def __init__(self, title, amount):
+   ...        self.title = title
+   ...        self.amount = amount
+
+We define our workflow::
+
+    >>> invoice_init = workflow.Transition(
+    ...     transition_id='init_invoice',
+    ...     title='Invoice Received',
+    ...     source=None,
+    ...     destination='received')
+    >>>
+    >>> invoice_paid = workflow.Transition(
+    ...     transition_id='invoice_paid',
+    ...     title='Invoice Paid',
+    ...     source='received',
+    ...     destination='paid')
+
+    >>> invoice_wf = workflow.Workflow( [ invoice_init, invoice_paid ] )
+
+We register a new workflow utility, WorkflowState and WorkflowInfo adapters, all
+named "invoice"::
+
+    >>> from hurry.workflow import workflow
+    >>> from zope.annotation import interfaces as annotation_interfaces
+    >>> component.provideUtility(invoice_wf, interfaces.IWorkflow, name="invoice")
+    >>> class InvoiceWorkflowInfo(workflow.WorkflowInfo):
+    ...     name="invoice"
+    >>> component.provideAdapter(
+    ...     InvoiceWorkflowInfo,
+    ...     (annotation_interfaces.IAnnotatable,),
+    ...     interfaces.IWorkflowInfo,
+    ...     name="invoice")
+    >>> class InvoiceWorkflowState(workflow.WorkflowState):
+    ...     state_key = "invoice.state"
+    ...     id_key  = "invoice.id"
+    >>> component.provideAdapter(
+    ...     InvoiceWorkflowState,
+    ...     (annotation_interfaces.IAnnotatable,),
+    ...     interfaces.IWorkflowState,
+    ...     name="invoice")
+
+Now we can utilize the workflow::
+
+    >>> invoice = InvoiceDocument('abc', 22)
+
+    >>> info = component.getAdapter(invoice, interfaces.IWorkflowInfo, name="invoice")
+    >>> info.fireTransition('init_invoice')
+    >>> state = component.getAdapter(invoice, interfaces.IWorkflowState, name="invoice")
+    >>> state.getState()
+    'received'
+    >>> info.fireTransition('invoice_paid')
+    >>> state.getState()
+    'paid'
+
+Of course, this document always have the default unnamed workflow::
+
+    >>> info = interfaces.IWorkflowInfo(invoice)
+    >>> info.fireTransition('to_a')
+    >>> state = interfaces.IWorkflowState(invoice)
+    >>> state.getState()
+    'a'
+
    
 Multi-version workflow
 ----------------------
