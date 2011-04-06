@@ -720,7 +720,7 @@ And a single automatic transition::
 Protecting transitions with permissions
 ---------------------------------------
 
-Permissions can be (and should be) protected with a permission, so
+Transitions can be (and should be) protected with a permission, so
 that not everybody can execute them.
 
 Let's set up a workflow with a permission that has a permission::
