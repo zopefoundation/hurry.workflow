@@ -22,6 +22,11 @@ class IWorkflow(Interface):
 
     Defined as a utility.
     """
+    def initialize():
+        """Do any needed initialization.
+
+        Such as initialization with the workflow versions system.
+        """
 
     def refresh(transitions):
         """Refresh workflow completely with new transitions.
