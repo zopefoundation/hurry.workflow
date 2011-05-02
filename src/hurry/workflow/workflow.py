@@ -48,7 +48,7 @@ class Transition(object):
         self.permission = permission
         self.order = order
         self.user_data = user_data
-        
+
     def __cmp__(self, other):
         return cmp(self.order, other.order)
 
@@ -59,7 +59,7 @@ class Transition(object):
 # mixes these in if you need persistent workflow
 class Workflow(object):
     implements(IWorkflow)
-    
+
     def __init__(self, transitions):
         self.refresh(transitions)
 
@@ -74,13 +74,13 @@ class Workflow(object):
         for transition in transitions:
             self._register(transition)
         self._p_changed = True
-        
+
     def getTransitions(self, source):
         try:
             return self._sources[source].values()
         except KeyError:
             return []
-        
+
     def getTransition(self, source, transition_id):
         transition = self._id_transitions[transition_id]
         if transition.source != source:
@@ -106,34 +106,36 @@ class WorkflowState(object):
         wf_versions = component.queryUtility(IWorkflowVersions)
         if wf_versions is not None:
             self.setId(wf_versions.createVersionId())
-        
+
     def setState(self, state):
         if state != self.getState():
             self._annotations[self.state_key] = state
-            
+
     def setId(self, id):
         # XXX catalog should be informed (or should it?)
         self._annotations[self.id_key] = id
-        
+
     def getState(self):
         return self._annotations.get(self.state_key, None)
 
     def getId(self):
         return self._annotations.get(self.id_key, None)
-            
+
 class WorkflowInfo(object):
     implements(IWorkflowInfo)
     name = u''
-    
+
     def __init__(self, context):
         self.context = context
         self.wf = component.getUtility(IWorkflow, name=self.name)
 
-    def info(self, obj):
-        return component.getAdapter(obj, IWorkflowInfo, name=self.name)
+    @classmethod
+    def info(cls, obj):
+        return component.getAdapter(obj, IWorkflowInfo, name=cls.name)
 
-    def state(self, obj):
-        return component.getAdapter(obj, IWorkflowState, name=self.name)
+    @classmethod
+    def state(cls, obj):
+        return component.getAdapter(obj, IWorkflowState, name=cls.name)
 
     def fireTransition(self, transition_id, comment=None, side_effect=None,
                        check_security=True):
@@ -153,7 +155,7 @@ class WorkflowInfo(object):
         if not checkPermission(
             transition.permission, self.context):
             raise Unauthorized(self.context,
-                               'transition: %s' % transition_id, 
+                               'transition: %s' % transition_id,
                                transition.permission)
         # now make sure transition can still work in this context
         if not transition.condition(self, self.context):
@@ -202,7 +204,7 @@ class WorkflowInfo(object):
             raise interfaces.AmbiguousTransitionError
         return self.fireTransition(transition_ids[0],
                                    comment, side_effect, check_security)
-        
+
     def fireTransitionForVersions(self, state, transition_id):
         id = self.state(self.context).getId()
         wf_versions = component.getUtility(IWorkflowVersions)
@@ -223,12 +225,12 @@ class WorkflowInfo(object):
                 # if we actually managed to fire a transition,
                 # we're done with this one now.
                 return
-            
+
     def hasVersion(self, state):
         wf_versions = component.getUtility(IWorkflowVersions)
         id = self.state(self.context).getId()
         return wf_versions.hasVersion(state, id)
-    
+
     def getManualTransitionIds(self):
         try:
             checkPermission = getInteraction().checkPermission
@@ -247,7 +249,7 @@ class WorkflowInfo(object):
 
     def getFireableTransitionIds(self):
         return self.getManualTransitionIds() + self.getSystemTransitionIds()
-    
+
     def getFireableTransitionIdsToward(self, state):
         result = []
         for transition_id in self.getFireableTransitionIds():
@@ -255,7 +257,7 @@ class WorkflowInfo(object):
             if transition.destination == state:
                 result.append(transition_id)
         return result
-    
+
     def getAutomaticTransitionIds(self):
         return [transition.transition_id for transition in
                 self._getTransitions(AUTOMATIC)]
@@ -272,7 +274,7 @@ class WorkflowInfo(object):
         # transitions in this context, and return their ids
         return [transition for transition in transitions if
                 transition.trigger == trigger]
-            
+
 class WorkflowVersions(object):
     implements(IWorkflowVersions)
 

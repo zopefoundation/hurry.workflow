@@ -10,12 +10,12 @@ Basic workflow
 Let's first make a content object that can go into a workflow::
 
    >>> from zope.interface import implements, Attribute
- 
+
    >>> from zope.annotation.interfaces import IAttributeAnnotatable
    >>> class IDocument(IAttributeAnnotatable):
    ...    title = Attribute('Title')
    >>> class Document(object):
-   ...    implements(IDocument) 
+   ...    implements(IDocument)
    ...    def __init__(self, title):
    ...        self.title = title
 
@@ -38,9 +38,9 @@ adapter as well::
 
 But let's set it back to None again, so we can start again in a
 pristine state for this document::
- 
+
     >>> state.setState(None)
- 
+
 It's not recommended use setState() do this ourselves, though: usually
 we'll let the workflow system take care of state transitions and the
 setting of the initial state.
@@ -59,14 +59,14 @@ and an action that takes place when the transition is taken::
 
 Now let's construct a transition::
 
-    >>> from hurry.workflow import workflow 
-    >>> transition = workflow.Transition( 
-    ...     transition_id='a_to_b', 
-    ...     title='A to B', 
-    ...     source='a', 
-    ...     destination='b', 
-    ...     condition=NullCondition, 
-    ...     action=NullAction, 
+    >>> from hurry.workflow import workflow
+    >>> transition = workflow.Transition(
+    ...     transition_id='a_to_b',
+    ...     title='A to B',
+    ...     source='a',
+    ...     destination='b',
+    ...     condition=NullCondition,
+    ...     action=NullAction,
     ...     trigger=interfaces.MANUAL)
 
 The transition trigger is either MANUAL, AUTOMATIC or SYSTEM. MANUAL
@@ -91,7 +91,7 @@ And a final transition, when the object moves out of the workflow again
     ...     title='Delete',
     ...     source='b',
     ...     destination=None)
- 
+
 Now let's put the transitions in an workflow utility::
 
     >>> wf = workflow.Workflow([transition, init_transition, final_transition])
@@ -260,6 +260,21 @@ Now we can utilize the workflow::
     >>> state.getState()
     'paid'
 
+To make it easier to get the state and info adapters for a particular context
+object, there are two convenience functions on the workflow info object. The
+info object "knows" what workflow utility to look for, as they are associated
+by name::
+
+    >>> info_ = InvoiceWorkflowInfo.info(invoice)
+    >>> interfaces.IWorkflowInfo.providedBy(info_)
+    True
+
+    >>> state_ = InvoiceWorkflowInfo.state(invoice)
+    >>> interfaces.IWorkflowState.providedBy(state_)
+    True
+    >>> state.getState() is state_.getState()
+    True
+
 Of course, this document always have the default unnamed workflow::
 
     >>> info = interfaces.IWorkflowInfo(invoice)
@@ -268,7 +283,6 @@ Of course, this document always have the default unnamed workflow::
     >>> state.getState()
     'a'
 
-   
 Multi-version workflow
 ----------------------
 
@@ -358,9 +372,9 @@ no UNPUBLISHED version and no PUBLISHED version, we can make a new copy
 from the CLOSED version::
 
    >>> def CanCopyCondition(wf, context):
-   ...     return (not wf.hasVersion(UNPUBLISHED) and 
+   ...     return (not wf.hasVersion(UNPUBLISHED) and
    ...         not wf.hasVersion(PUBLISHED))
- 
+
    >>> copy_closed_transition = workflow.Transition(
    ...     transition_id='copy_closed',
    ...     title='Copy',
@@ -385,7 +399,7 @@ Finally let's build the archiving transition::
 
 Now let's build and provide the workflow utility::
 
-   >>> wf = workflow.Workflow([init_transition, 
+   >>> wf = workflow.Workflow([init_transition,
    ...                         publish_transition, close_transition,
    ...                         copy_transition, copy_closed_transition,
    ...                         archive_transition])
@@ -499,9 +513,9 @@ This copy is now published::
 
   >>> interfaces.IWorkflowState(document3).getState()
   'published'
- 
+
 And the previously published version is now closed::
-  
+
   >>> interfaces.IWorkflowState(document2).getState()
   'closed'
 
@@ -576,7 +590,7 @@ Now fire let's any automatic transitions::
    >>> workflow_versions.fireAutomatic()
 
 Nothing should have happened as we are still at time moment 0::
-  
+
    >>> state = interfaces.IWorkflowState(document)
    >>> state.getState()
    'unpublished'
@@ -590,7 +604,7 @@ Now fire any automatic transitions again::
    >>> workflow_versions.fireAutomatic()
 
 The transition has fired, so the state will be 'published'::
- 
+
    >>> state.getState()
    'published'
 
@@ -696,8 +710,8 @@ time is at 0 again so that the publish_auto_transition doesn't fire::
 Now set up the workflow using these transitions, plus our
 init_transition::
 
-   >>> wf = workflow.Workflow([init_transition, 
-   ...     publish_1_transition, publish_2_transition, 
+   >>> wf = workflow.Workflow([init_transition,
+   ...     publish_1_transition, publish_2_transition,
    ...     publish_auto_transition])
    >>> component.provideUtility(wf, interfaces.IWorkflow)
 
@@ -746,12 +760,12 @@ Quickly set up the workflow state again for a document::
 
 Let's set up the security context::
 
-   >>> from zope.security.interfaces import Unauthorized 
+   >>> from zope.security.interfaces import Unauthorized
    >>> from zope.security.management import newInteraction, endInteraction
    >>> class Principal:
    ...    def __init__(self, id):
    ...        self.id = id
-   ...        self.groups = [] 
+   ...        self.groups = []
    >>> class Participation:
    ...   interaction = None
    ...   def __init__(self, principal):
@@ -775,8 +789,8 @@ Now let's try firing the transition. It should fail with Unauthorized::
 
 The system user is however allowed to do it::
 
-   >>> from zope.security.management import system_user   
-   >>> endInteraction() 
+   >>> from zope.security.management import system_user
+   >>> endInteraction()
    >>> newInteraction(Participation(system_user))
    >>> info.fireTransition('publish')
 
@@ -804,7 +818,7 @@ If something like a history logger hooks into IWorkflowTransitionEvent
 however, it would get information about the new copy *before* the
 editing took place. To allow an editing to take place between the
 creation of the new copy and the firing of the event, a side effect
-function can be passed along when a transition is fired. 
+function can be passed along when a transition is fired.
 
 The sequence of execution then is:
 
@@ -843,9 +857,9 @@ Now let's set up a side effect::
 Now fire the transition, with a side effect::
 
    >>> new_version = info.fireTransition('foo', side_effect=side_effect)
-   
+
 The title of the new version should now have a ! at the end::
-  
+
    >>> new_version.title[-1] == '!'
    True
 
