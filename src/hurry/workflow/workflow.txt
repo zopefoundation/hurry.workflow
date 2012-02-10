@@ -787,6 +787,16 @@ Now let's try firing the transition. It should fail with Unauthorized::
    ...     print "Got unauthorized"
    Got unauthorized
 
+It's also not allowed for ``fireTransitionToward``::
+
+  >>> info.fireTransitionToward(PUBLISHED)
+  Traceback (most recent call last):
+     ...
+  NoTransitionAvailableError
+
+In this case, the transition even't even available because the user
+doesn't have the right permission.
+
 The system user is however allowed to do it::
 
    >>> from zope.security.management import system_user
@@ -803,6 +813,12 @@ False to fireTransition::
    >>> newInteraction(Participation(Principal('bob')))
    >>> interfaces.IWorkflowState(document).setState(UNPUBLISHED)
    >>> info.fireTransition('publish', check_security=False)
+
+This also works with fireTransitionToward::
+
+   >>> interfaces.IWorkflowState(document).setState(UNPUBLISHED)
+   >>> info.fireTransitionToward(PUBLISHED, check_security=False)
+
 
 Side effects during transitions
 -------------------------------

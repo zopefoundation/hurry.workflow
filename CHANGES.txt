@@ -5,8 +5,13 @@ hurry.workflow changes
 0.12 (unreleased)
 =================
 
-- Make the info() and state() functions on the WorkflowInfo class into
+* Make the info() and state() functions on the WorkflowInfo class into
   classmethods as they are not of much use otherwise.
+
+* fireTransitionToward already accepted a check_security=False
+  argument, but it would not allow a transition that a user didn't
+  have the permission for to be fired after all, because the
+  transition wouldn't even be found in the first place. Now it works.
 
 0.11 (2010-04-16)
 =================

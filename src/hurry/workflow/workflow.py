@@ -197,7 +197,8 @@ class WorkflowInfo(object):
 
     def fireTransitionToward(self, state, comment=None, side_effect=None,
                              check_security=True):
-        transition_ids = self.getFireableTransitionIdsToward(state)
+        transition_ids = self.getFireableTransitionIdsToward(state,
+                                                             check_security)
         if not transition_ids:
             raise interfaces.NoTransitionAvailableError
         if len(transition_ids) != 1:
@@ -231,10 +232,12 @@ class WorkflowInfo(object):
         id = self.state(self.context).getId()
         return wf_versions.hasVersion(state, id)
 
-    def getManualTransitionIds(self):
+    def getManualTransitionIds(self, check_security=True):
         try:
             checkPermission = getInteraction().checkPermission
         except NoInteraction:
+            checkPermission = nullCheckPermission
+        if not check_security:
             checkPermission = nullCheckPermission
         return [transition.transition_id for transition in
                 sorted(self._getTransitions(MANUAL)) if
@@ -247,12 +250,13 @@ class WorkflowInfo(object):
                 sorted(self._getTransitions(SYSTEM)) if
                 transition.condition(self, self.context)]
 
-    def getFireableTransitionIds(self):
-        return self.getManualTransitionIds() + self.getSystemTransitionIds()
+    def getFireableTransitionIds(self, check_security=True):
+        return (self.getManualTransitionIds(check_security) +
+                self.getSystemTransitionIds())
 
-    def getFireableTransitionIdsToward(self, state):
+    def getFireableTransitionIdsToward(self, state, check_security=True):
         result = []
-        for transition_id in self.getFireableTransitionIds():
+        for transition_id in self.getFireableTransitionIds(check_security):
             transition = self.wf.getTransitionById(transition_id)
             if transition.destination == state:
                 result.append(transition_id)
