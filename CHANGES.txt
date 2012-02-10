@@ -2,7 +2,7 @@
 hurry.workflow changes
 ======================
 
-0.12 (unreleased)
+0.12 (2012-02-10)
 =================
 
 * Make the info() and state() functions on the WorkflowInfo class into
