@@ -98,6 +98,22 @@ Now let's put the transitions in an workflow utility::
     >>> from zope import component
     >>> component.provideUtility(wf, interfaces.IWorkflow)
 
+We can get the transition from the workflow using ``get_transition``
+should we need it::
+
+    >>> wf.getTransition('a', 'a_to_b') is transition
+    True
+
+If we try to get a transition that doesn't exist, we get an error::
+
+    >>> from hurry.workflow.interfaces import InvalidTransitionError
+    >>> try:
+    ...   wf.getTransition('b', 'a_to_b')
+    ... except InvalidTransitionError, e:
+    ...   pass
+    >>> e.source
+    'b'
+
 Workflow transitions cause events to be fired; we will put in a simple
 handler so we can check whether things were successfully fired::
 
@@ -168,6 +184,18 @@ Try going through a transition we cannot reach first::
     Traceback (most recent call last):
     ...
     NoTransitionAvailableError
+
+This error has some information available of what transition was attempted::
+
+    >>> from hurry.workflow.interfaces import NoTransitionAvailableError
+    >>> try:
+    ...   info.fireTransitionToward('c')
+    ... except NoTransitionAvailableError, e:
+    ...   pass
+    >>> e.source
+    'a'
+    >>> e.destination
+    'c'
 
 Now go to 'b' again::
 
@@ -890,3 +918,48 @@ The events list we set up before should contain two events::
    2
    >>> events[1].object.title[-1] == '!'
    True
+
+Ambiguous transitions
+=====================
+
+Let's set up a situation where there are two equivalent transitions from
+``a`` to ``b``::
+
+    >>> transition1 = workflow.Transition(
+    ...     transition_id='a_to_b1',
+    ...     title='A to B',
+    ...     source='a',
+    ...     destination='b',
+    ...     condition=NullCondition,
+    ...     action=NullAction,
+    ...     trigger=interfaces.MANUAL)
+
+    >>> transition2 = workflow.Transition(
+    ...     transition_id='a_to_b2',
+    ...     title='A to B',
+    ...     source='a',
+    ...     destination='b',
+    ...     condition=NullCondition,
+    ...     action=NullAction,
+    ...     trigger=interfaces.MANUAL)
+
+
+    >>> wf = workflow.Workflow([transition1, transition2])
+    >>> from zope import component
+    >>> component.provideUtility(wf, interfaces.IWorkflow)
+    >>> info = interfaces.IWorkflowInfo(document)
+    >>> state = interfaces.IWorkflowState(document)
+    >>> state.setState('a')
+
+``fireTransitionToward`` is ambiguous as two transitions are possible::
+
+    >>> from hurry.workflow.interfaces import AmbiguousTransitionError
+    >>> try:
+    ...   info.fireTransitionToward('b')
+    ... except AmbiguousTransitionError, e:
+    ...   pass
+    >>> e.source
+    'a'
+    >>> e.destination
+    'b'
+

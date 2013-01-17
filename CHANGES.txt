@@ -5,8 +5,16 @@ hurry.workflow changes
 0.13 (unreleased)
 =================
 
-- Nothing changed yet.
+* ``NoTransitionAvailableError`` gained a ``source`` and ``destination``
+  attribute indicating what transition wasn't available.
 
+* ``AmbiguousTransitionError`` also gained a ``source`` and ``destination``
+  attribute indicating what transition was ambiguous.
+ 
+* ``InvalidTransitionError`` gained a ``source`` attribute indicating
+  the source state of the attempted invalid transition.
+
+* Newer ``bootstrap.py``
 
 0.12 (2012-02-10)
 =================

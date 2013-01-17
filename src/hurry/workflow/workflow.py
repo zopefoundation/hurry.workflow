@@ -84,7 +84,7 @@ class Workflow(object):
     def getTransition(self, source, transition_id):
         transition = self._id_transitions[transition_id]
         if transition.source != source:
-            raise InvalidTransitionError
+            raise InvalidTransitionError(source)
         return transition
 
     def getTransitionById(self, transition_id):
@@ -159,6 +159,7 @@ class WorkflowInfo(object):
                                transition.permission)
         # now make sure transition can still work in this context
         if not transition.condition(self, self.context):
+            # XXX should we include state info here? if so, what?
             raise ConditionFailedError
         # perform action, return any result as new version
         result = transition.action(self, self.context)
@@ -200,9 +201,13 @@ class WorkflowInfo(object):
         transition_ids = self.getFireableTransitionIdsToward(state,
                                                              check_security)
         if not transition_ids:
-            raise interfaces.NoTransitionAvailableError
+            raise interfaces.NoTransitionAvailableError(
+                self.state(self.context).getState(),
+                state)
         if len(transition_ids) != 1:
-            raise interfaces.AmbiguousTransitionError
+            raise interfaces.AmbiguousTransitionError(
+                self.state(self.context).getState(),
+                state)
         return self.fireTransition(transition_ids[0],
                                    comment, side_effect, check_security)
 

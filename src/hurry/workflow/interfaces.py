@@ -6,13 +6,18 @@ AUTOMATIC = 1
 SYSTEM = 2
 
 class InvalidTransitionError(Exception):
-    pass
+    def __init__(self, source):
+        self.source = source
 
 class NoTransitionAvailableError(InvalidTransitionError):
-    pass
-
+    def __init__(self, source, destination):
+        super(NoTransitionAvailableError, self).__init__(source)
+        self.destination = destination
+        
 class AmbiguousTransitionError(InvalidTransitionError):
-    pass
+    def __init__(self, source, destination):
+        super(AmbiguousTransitionError, self).__init__(source)
+        self.destination = destination
 
 class ConditionFailedError(Exception):
     pass
