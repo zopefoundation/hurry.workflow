@@ -106,6 +106,11 @@ should we need it::
 
 If we try to get a transition that doesn't exist, we get an error::
 
+    >>> wf.getTransition('b', 'a_to_b')
+    Traceback (most recent call last):
+      ...
+    InvalidTransitionError: source: "b"
+
     >>> from hurry.workflow.interfaces import InvalidTransitionError
     >>> try:
     ...   wf.getTransition('b', 'a_to_b')
@@ -183,7 +188,7 @@ Try going through a transition we cannot reach first::
     >>> info.fireTransitionToward('c')
     Traceback (most recent call last):
     ...
-    NoTransitionAvailableError
+    NoTransitionAvailableError: source: "a" destination: "c"
 
 This error has some information available of what transition was attempted::
 
@@ -820,7 +825,7 @@ It's also not allowed for ``fireTransitionToward``::
   >>> info.fireTransitionToward(PUBLISHED)
   Traceback (most recent call last):
      ...
-  NoTransitionAvailableError
+  NoTransitionAvailableError: source: "unpublished" destination: "published"
 
 In this case, the transition even't even available because the user
 doesn't have the right permission.
@@ -952,6 +957,11 @@ Let's set up a situation where there are two equivalent transitions from
     >>> state.setState('a')
 
 ``fireTransitionToward`` is ambiguous as two transitions are possible::
+
+    >>> info.fireTransitionToward('b')
+    Traceback (most recent call last):
+       ...
+    AmbiguousTransitionError: source: "a" destination: "b"
 
     >>> from hurry.workflow.interfaces import AmbiguousTransitionError
     >>> try:

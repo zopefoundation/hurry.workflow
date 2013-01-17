@@ -9,15 +9,24 @@ class InvalidTransitionError(Exception):
     def __init__(self, source):
         self.source = source
 
+    def __str__(self):
+        return 'source: "%s"' % self.source
+    
 class NoTransitionAvailableError(InvalidTransitionError):
     def __init__(self, source, destination):
         super(NoTransitionAvailableError, self).__init__(source)
         self.destination = destination
-        
+
+    def __str__(self):
+        return 'source: "%s" destination: "%s"' % (self.source, self.destination)
+    
 class AmbiguousTransitionError(InvalidTransitionError):
     def __init__(self, source, destination):
         super(AmbiguousTransitionError, self).__init__(source)
         self.destination = destination
+
+    def __str__(self):
+        return 'source: "%s" destination: "%s"' % (self.source, self.destination)
 
 class ConditionFailedError(Exception):
     pass

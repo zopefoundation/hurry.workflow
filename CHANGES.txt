@@ -2,11 +2,10 @@
 hurry.workflow changes
 ======================
 
-0.14 (unreleased)
-=================
+0.13.1 (unreleased)
+===================
 
-- Nothing changed yet.
-
+* Make the exceptions also display more informative messages.
 
 0.13 (2013-01-17)
 =================
