@@ -1,6 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
@@ -22,14 +23,11 @@ setup(
     name="hurry.workflow",
     version='0.14.dev0',
     packages=find_packages('src'),
-    
-    package_dir= {'':'src'},
-    
+    package_dir={'': 'src'},
     namespace_packages=['hurry'],
-    package_data = {
-    '': ['*.txt', '*.zcml'],
+    package_data={
+        '': ['*.txt', '*.zcml'],
     },
-
     zip_safe=False,
     author='Martijn Faassen (at Infrae)',
     author_email='faassen@startifact.com',
@@ -40,20 +38,17 @@ implement stateful multi-version workflows for Zope Toolkit applications.
     long_description=long_description,
     license='ZPL 2.1',
     keywords="zope zope3",
-    classifiers = ['Framework :: Zope3'],
-    extras_require = dict(
-        test = ['zope.testing'],
-        ),
+    classifiers=['Framework :: Zope3'],
+    extras_require=dict(
+        test=[],
+    ),
     install_requires=[
         'setuptools',
         'zope.interface',
         'zope.component',
-        # this is an indirect dependency through zope.annotation, but
-        # this at the time of working didn't yet declare this
-        # dependency itself
-        'ZODB3',
         'zope.event',
         'zope.security',
         'zope.annotation',
-        'zope.lifecycleevent'],
+        'zope.lifecycleevent'
+    ],
     )

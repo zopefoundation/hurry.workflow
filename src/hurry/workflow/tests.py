@@ -1,11 +1,12 @@
+import doctest
 import unittest
 
-from zope.testing import doctest
 from zope import component
 from zope.component import testing
 from zope.annotation import interfaces as annotation_interfaces
 from zope.annotation import attribute
 from hurry.workflow import interfaces, workflow
+
 
 class WorkflowVersions(workflow.WorkflowVersions):
     """Simplistic implementation that keeps track of versions.
@@ -14,15 +15,15 @@ class WorkflowVersions(workflow.WorkflowVersions):
     """
     def __init__(self):
         self.versions = []
-        
+
     def addVersion(self, obj):
         self.versions.append(obj)
-        
+
     def getVersions(self, state, id):
         result = []
         for version in self.versions:
-            state_adapter = interfaces.IWorkflowState(version)
-            if state_adapter.getId() == id and state_adapter.getState() == state:
+            adapter = interfaces.IWorkflowState(version)
+            if adapter.getId() == id and adapter.getState() == state:
                 result.append(version)
         return result
 
@@ -32,7 +33,7 @@ class WorkflowVersions(workflow.WorkflowVersions):
             if interfaces.IWorkflowInfo(version).hasAutomaticTransitions():
                 result.append(version)
         return result
-    
+
     def hasVersion(self, state, id):
         return bool(self.getVersions(state, id))
 
@@ -42,10 +43,11 @@ class WorkflowVersions(workflow.WorkflowVersions):
             if state_adapter.getId() == id:
                 return True
         return False
-    
+
     def clear(self):
         self.versions = []
-        
+
+
 def workflowSetUp(doctest):
     testing.setUp(doctest)
     component.provideAdapter(
@@ -63,7 +65,8 @@ def workflowSetUp(doctest):
     component.provideUtility(
         WorkflowVersions(),
         interfaces.IWorkflowVersions)
-    
+
+
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
@@ -74,4 +77,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-
