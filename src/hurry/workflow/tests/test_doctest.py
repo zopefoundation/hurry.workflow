@@ -70,7 +70,7 @@ def workflowSetUp(doctest):
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
-            'workflow.txt',
+            '../workflow.txt',
             setUp=workflowSetUp, tearDown=testing.tearDown,
             ),
         ))
