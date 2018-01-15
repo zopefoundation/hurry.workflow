@@ -10,6 +10,7 @@ from zope.interface import implements, Attribute
 
 from hurry.workflow.tests.test_doctest import WorkflowVersions
 
+
 """Increase test coverage without polluting doctest."""
 
 
