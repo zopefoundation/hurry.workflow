@@ -51,15 +51,6 @@ class WorkflowInfoTestCase(unittest.TestCase):
             WorkflowVersions(),
             interfaces.IWorkflowVersions)
 
-        # self.events = []
-
-        # def transition_handler(event):
-        #     self.events.append(event)
-
-        # component.provideHandler(
-        #     transition_handler,
-        #     [interfaces.IWorkflowTransitionEvent])
-
         def some_condition(wf, context):
             return True
 
@@ -97,9 +88,9 @@ class WorkflowInfoTestCase(unittest.TestCase):
 
     def test_info(self):
         self.assertEqual(self.info.context,
-                          self.info.info(self.document).context)
+                         self.info.info(self.document).context)
         self.assertEqual(self.info.wf,
-                          self.info.info(self.document).wf)
+                         self.info.info(self.document).wf)
 
     def test_state(self):
         self.assertEqual(
