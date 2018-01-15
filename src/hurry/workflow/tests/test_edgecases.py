@@ -6,7 +6,7 @@ from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.annotation import attribute
 from zope.annotation import interfaces as annotation_interfaces
 
-from zope.interface import implements, Attribute
+from zope.interface import implementer, Attribute
 
 from hurry.workflow.tests.test_doctest import WorkflowVersions
 
@@ -18,8 +18,8 @@ class IDocument(IAttributeAnnotatable):
     title = Attribute('Title')
 
 
+@implementer(IDocument)
 class Document(object):
-    implements(IDocument)
 
     def __init__(self, title):
         self.title = title
@@ -29,7 +29,7 @@ class WorkflowTestCase(unittest.TestCase):
 
     def test_getTransitions_empty(self):
         wf = workflow.Workflow([])
-        self.assertEquals([], wf.getTransitions(None))
+        self.assertEqual([], wf.getTransitions(None))
 
 
 class WorkflowInfoTestCase(unittest.TestCase):
@@ -96,23 +96,23 @@ class WorkflowInfoTestCase(unittest.TestCase):
         self.state = interfaces.IWorkflowState(self.document)
 
     def test_info(self):
-        self.assertEquals(self.info.context,
+        self.assertEqual(self.info.context,
                           self.info.info(self.document).context)
-        self.assertEquals(self.info.wf,
+        self.assertEqual(self.info.wf,
                           self.info.info(self.document).wf)
 
     def test_state(self):
-        self.assertEquals(
+        self.assertEqual(
             self.state.context,
             self.info.state(self.document).context)
-        self.assertEquals(
-            self.state._annotations.items(),
-            self.info.state(self.document)._annotations.items())
+        self.assertEqual(
+            list(self.state._annotations.items()),
+            list(self.info.state(self.document)._annotations.items()))
 
     def test_fireTransition_result_wo__source(self):
-        self.assertEquals(None, self.state.getId())
+        self.assertEqual(None, self.state.getId())
         self.info.fireTransition('to_a')
-        self.assertNotEquals(None, self.state.getId())
+        self.assertNotEqual(None, self.state.getId())
 
     def test_fireTransition_wo_result_w_side_effect(self):
         def set_foo(context):
@@ -121,7 +121,7 @@ class WorkflowInfoTestCase(unittest.TestCase):
         self.info.fireTransition('to_a')
         self.assertFalse(hasattr(self.document, 'foo'))
         self.info.fireTransition('a_to_b', side_effect=set_foo)
-        self.assertEquals('foo', self.document.foo)
+        self.assertEqual('foo', self.document.foo)
 
     def test_fireTransitionForVersions_version_is_context(self):
         self.info.fireTransition('to_a')
@@ -130,7 +130,7 @@ class WorkflowInfoTestCase(unittest.TestCase):
         self.info.fireTransitionForVersions(self.state.getState(),
                                             'a_to_b')
         # the implementation specifically does not transition the document
-        self.assertEquals('a', self.state.getState())
+        self.assertEqual('a', self.state.getState())
 
 
 class WorkflowVersionsTestCase(unittest.TestCase):

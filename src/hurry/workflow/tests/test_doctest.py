@@ -72,6 +72,7 @@ def test_suite():
         doctest.DocFileSuite(
             '../workflow.txt',
             setUp=workflowSetUp, tearDown=testing.tearDown,
+            optionflags=doctest.IGNORE_EXCEPTION_DETAIL,
             ),
         ))
 

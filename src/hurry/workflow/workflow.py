@@ -1,7 +1,8 @@
+import functools
 import random
 import sys
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.event import notify
 from zope.security.checker import CheckerPublic
 from zope.security.interfaces import NoInteraction, Unauthorized
@@ -34,6 +35,7 @@ def nullCheckPermission(permission, principal_id):
     return True
 
 
+@functools.total_ordering
 class Transition(object):
 
     def __init__(self, transition_id, title, source, destination,
@@ -54,8 +56,11 @@ class Transition(object):
         self.order = order
         self.user_data = user_data
 
-    def __cmp__(self, other):
-        return cmp(self.order, other.order)
+    def __lt__(self, other):
+        return self.order < other.order
+
+    def __eq__(self, other):
+        return self.order == other.order
 
 
 # in the past this subclassed from zope.container.Contained and
@@ -63,8 +68,8 @@ class Transition(object):
 # to reduce dependencies these base classes have been removed.
 # You can choose to create a subclass in your own code that
 # mixes these in if you need persistent workflow
+@implementer(IWorkflow)
 class Workflow(object):
-    implements(IWorkflow)
 
     def __init__(self, transitions):
         self.refresh(transitions)
@@ -83,7 +88,7 @@ class Workflow(object):
 
     def getTransitions(self, source):
         try:
-            return self._sources[source].values()
+            return list(self._sources[source].values())
         except KeyError:
             return []
 
@@ -97,8 +102,8 @@ class Workflow(object):
         return self._id_transitions[transition_id]
 
 
+@implementer(IWorkflowState)
 class WorkflowState(object):
-    implements(IWorkflowState)
     state_key = "hurry.workflow.state"
     id_key = "hurry.workflow.id"
 
@@ -129,9 +134,9 @@ class WorkflowState(object):
         return self._annotations.get(self.id_key, None)
 
 
+@implementer(IWorkflowInfo)
 class WorkflowInfo(object):
-    implements(IWorkflowInfo)
-    name = u''
+    name = ''
 
     def __init__(self, context):
         self.context = context
@@ -302,8 +307,8 @@ class WorkflowInfo(object):
                 transition.trigger == trigger]
 
 
+@implementer(IWorkflowVersions)
 class WorkflowVersions(object):
-    implements(IWorkflowVersions)
 
     def getVersions(self, state, id):
         raise NotImplementedError
@@ -313,7 +318,7 @@ class WorkflowVersions(object):
 
     def createVersionId(self):
         while True:
-            id = random.randrange(sys.maxint)
+            id = random.randrange(sys.maxsize)
             if not self.hasVersionId(id):
                 return id
 
@@ -328,8 +333,8 @@ class WorkflowVersions(object):
             IWorkflowInfo(version).fireAutomatic()
 
 
+@implementer(interfaces.IWorkflowTransitionEvent)
 class WorkflowTransitionEvent(ObjectEvent):
-    implements(interfaces.IWorkflowTransitionEvent)
 
     def __init__(self, object, source, destination, transition, comment):
         super(WorkflowTransitionEvent, self).__init__(object)
@@ -339,8 +344,8 @@ class WorkflowTransitionEvent(ObjectEvent):
         self.comment = comment
 
 
+@implementer(interfaces.IWorkflowVersionTransitionEvent)
 class WorkflowVersionTransitionEvent(WorkflowTransitionEvent):
-    implements(interfaces.IWorkflowVersionTransitionEvent)
 
     def __init__(self, object, old_object, source, destination,
                  transition, comment):
