@@ -316,7 +316,6 @@ class WorkflowVersions(object):
             id = random.randrange(sys.maxint)
             if not self.hasVersionId(id):
                 return id
-        assert False, "Shouldn't ever reach here"
 
     def hasVersion(self, state, id):
         raise NotImplementedError
