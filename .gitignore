@@ -1,5 +1,6 @@
 *.egg-info/
 *.py[co]
+.coverage*
 .installed.cfg
 .tox/
 __pycache__/
@@ -8,6 +9,7 @@ build/
 develop-eggs/
 dist/
 eggs/
+htmlcov/
 include/
 lib/
 parts/
