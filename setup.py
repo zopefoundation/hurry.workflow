@@ -31,12 +31,12 @@ setup(
     zip_safe=False,
     author='Martijn Faassen (at Infrae)',
     author_email='faassen@startifact.com',
-    description="""\
-hurry.workflow is a simple workflow system. It can be used to
-implement stateful multi-version workflows for Zope Toolkit applications.
-""",
+    description=(
+        "hurry.workflow is a simple workflow system. It can be used to "
+        "implement stateful multi-version workflows for Zope Toolkit "
+        "applications."),
     long_description=long_description,
-    license='ZPL 2.1',
+    license='ZPL2.1',
     keywords="zope zope3",
     classifiers=[
         'Environment :: Web Environment',
