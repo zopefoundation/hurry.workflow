@@ -9,13 +9,13 @@ Basic workflow
 
 Let's first make a content object that can go into a workflow::
 
-   >>> from zope.interface import implements, Attribute
+   >>> from zope.interface import implementer, Attribute
 
    >>> from zope.annotation.interfaces import IAttributeAnnotatable
    >>> class IDocument(IAttributeAnnotatable):
    ...    title = Attribute('Title')
-   >>> class Document(object):
-   ...    implements(IDocument)
+   >>> @implementer(IDocument)
+   ... class Document(object):
    ...    def __init__(self, title):
    ...        self.title = title
 
@@ -26,7 +26,7 @@ IWorkflowState adapter to get and set an object's workflow state::
     >>> from hurry.workflow import interfaces
     >>> document = Document('Foo')
     >>> state = interfaces.IWorkflowState(document)
-    >>> print state.getState()
+    >>> print(state.getState())
     None
 
 The state can be set directly for an object using the IWorkflowState
@@ -109,13 +109,13 @@ If we try to get a transition that doesn't exist, we get an error::
     >>> wf.getTransition('b', 'a_to_b')
     Traceback (most recent call last):
       ...
-    InvalidTransitionError: source: "b"
+    hurry.workflow.interfaces.InvalidTransitionError: source: "b"
 
     >>> from hurry.workflow.interfaces import InvalidTransitionError
     >>> try:
     ...   wf.getTransition('b', 'a_to_b')
-    ... except InvalidTransitionError, e:
-    ...   pass
+    ... except InvalidTransitionError as e_:
+    ...   e = e_
     >>> e.source
     'b'
 
@@ -188,15 +188,15 @@ Try going through a transition we cannot reach first::
     >>> info.fireTransitionToward('c')
     Traceback (most recent call last):
     ...
-    NoTransitionAvailableError: source: "a" destination: "c"
+    hurry.workflow.interfaces.NoTransitionAvailableError: source: "a" destination: "c"
 
 This error has some information available of what transition was attempted::
 
     >>> from hurry.workflow.interfaces import NoTransitionAvailableError
     >>> try:
     ...   info.fireTransitionToward('c')
-    ... except NoTransitionAvailableError, e:
-    ...   pass
+    ... except NoTransitionAvailableError as e_:
+    ...   e = e_
     >>> e.source
     'a'
     >>> e.destination
@@ -236,8 +236,8 @@ Let's create a, invoice document::
    >>> class IInvoiceDocument(IDocument):
    ...    title = Attribute('Title')
 
-   >>> class InvoiceDocument(object):
-   ...    implements(IInvoiceDocument)
+   >>> @implementer(IInvoiceDocument)
+   ... class InvoiceDocument(object):
    ...    def __init__(self, title, amount):
    ...        self.title = title
    ...        self.amount = amount
@@ -817,7 +817,7 @@ Now let's try firing the transition. It should fail with Unauthorized::
    >>> try:
    ...     info.fireTransition('publish')
    ... except Unauthorized:
-   ...     print "Got unauthorized"
+   ...     print("Got unauthorized")
    Got unauthorized
 
 It's also not allowed for ``fireTransitionToward``::
@@ -825,7 +825,7 @@ It's also not allowed for ``fireTransitionToward``::
   >>> info.fireTransitionToward(PUBLISHED)
   Traceback (most recent call last):
      ...
-  NoTransitionAvailableError: source: "unpublished" destination: "published"
+  hurry.workflow.interfaces.NoTransitionAvailableError: source: "unpublished" destination: "published"
 
 In this case, the transition even't even available because the user
 doesn't have the right permission.
@@ -961,15 +961,16 @@ Let's set up a situation where there are two equivalent transitions from
     >>> info.fireTransitionToward('b')
     Traceback (most recent call last):
        ...
-    AmbiguousTransitionError: source: "a" destination: "b"
+    hurry.workflow.interfaces.AmbiguousTransitionError: source: "a" destination: "b"
 
     >>> from hurry.workflow.interfaces import AmbiguousTransitionError
     >>> try:
     ...   info.fireTransitionToward('b')
-    ... except AmbiguousTransitionError, e:
-    ...   pass
+    ... except AmbiguousTransitionError as e_:
+    ...   e = e_
     >>> e.source
     'a'
     >>> e.destination
     'b'
+
 

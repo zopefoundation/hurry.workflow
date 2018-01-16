@@ -21,7 +21,7 @@ long_description = (
 
 setup(
     name="hurry.workflow",
-    version='0.14.dev0',
+    version='3.0.dev0',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     namespace_packages=['hurry'],
@@ -38,7 +38,22 @@ implement stateful multi-version workflows for Zope Toolkit applications.
     long_description=long_description,
     license='ZPL 2.1',
     keywords="zope zope3",
-    classifiers=['Framework :: Zope3'],
+    classifiers=[
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Zope Public License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Framework :: Zope3',
+        ],
     extras_require=dict(
         test=[],
     ),

@@ -70,10 +70,12 @@ def workflowSetUp(doctest):
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
-            'workflow.txt',
+            '../workflow.txt',
             setUp=workflowSetUp, tearDown=testing.tearDown,
+            optionflags=doctest.IGNORE_EXCEPTION_DETAIL,
             ),
         ))
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

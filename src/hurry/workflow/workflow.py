@@ -1,6 +1,8 @@
-import random, sys
+import functools
+import random
+import sys
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.event import notify
 from zope.security.checker import CheckerPublic
 from zope.security.interfaces import NoInteraction, Unauthorized
@@ -13,22 +15,27 @@ from zope.component.interfaces import ObjectEvent
 
 from hurry.workflow import interfaces
 from hurry.workflow.interfaces import MANUAL, AUTOMATIC, SYSTEM
-from hurry.workflow.interfaces import\
-     IWorkflow, IWorkflowState, IWorkflowInfo, IWorkflowVersions
-from hurry.workflow.interfaces import\
-     InvalidTransitionError, ConditionFailedError
+from hurry.workflow.interfaces import (
+    IWorkflow, IWorkflowState, IWorkflowInfo, IWorkflowVersions)
+from hurry.workflow.interfaces import (
+    InvalidTransitionError, ConditionFailedError)
+
 
 def NullCondition(wf, context):
     return True
 
+
 def NullAction(wf, context):
     pass
+
 
 # XXX this is needed to make the tests pass in the absence of
 # interactions..
 def nullCheckPermission(permission, principal_id):
     return True
 
+
+@functools.total_ordering
 class Transition(object):
 
     def __init__(self, transition_id, title, source, destination,
@@ -49,16 +56,20 @@ class Transition(object):
         self.order = order
         self.user_data = user_data
 
-    def __cmp__(self, other):
-        return cmp(self.order, other.order)
+    def __lt__(self, other):
+        return self.order < other.order
+
+    def __eq__(self, other):
+        return self.order == other.order
+
 
 # in the past this subclassed from zope.container.Contained and
 # persistent.Persistent.
 # to reduce dependencies these base classes have been removed.
 # You can choose to create a subclass in your own code that
 # mixes these in if you need persistent workflow
+@implementer(IWorkflow)
 class Workflow(object):
-    implements(IWorkflow)
 
     def __init__(self, transitions):
         self.refresh(transitions)
@@ -77,7 +88,7 @@ class Workflow(object):
 
     def getTransitions(self, source):
         try:
-            return self._sources[source].values()
+            return list(self._sources[source].values())
         except KeyError:
             return []
 
@@ -90,10 +101,11 @@ class Workflow(object):
     def getTransitionById(self, transition_id):
         return self._id_transitions[transition_id]
 
+
+@implementer(IWorkflowState)
 class WorkflowState(object):
-    implements(IWorkflowState)
     state_key = "hurry.workflow.state"
-    id_key  = "hurry.workflow.id"
+    id_key = "hurry.workflow.id"
 
     def __init__(self, context):
         # XXX okay, I'm tired of it not being able to set annotations, so
@@ -121,9 +133,10 @@ class WorkflowState(object):
     def getId(self):
         return self._annotations.get(self.id_key, None)
 
+
+@implementer(IWorkflowInfo)
 class WorkflowInfo(object):
-    implements(IWorkflowInfo)
-    name = u''
+    name = ''
 
     def __init__(self, context):
         self.context = context
@@ -153,7 +166,7 @@ class WorkflowInfo(object):
             else:
                 checkPermission = nullCheckPermission
         if not checkPermission(
-            transition.permission, self.context):
+                transition.permission, self.context):
             raise Unauthorized(self.context,
                                'transition: %s' % transition_id,
                                transition.permission)
@@ -172,20 +185,23 @@ class WorkflowInfo(object):
             # execute any side effect:
             if side_effect is not None:
                 side_effect(result)
-            event = WorkflowVersionTransitionEvent(result, self.context,
-                                                   transition.source,
-                                                   transition.destination,
-                                                   transition, comment)
+            event = WorkflowVersionTransitionEvent(
+                result,
+                self.context,
+                transition.source,
+                transition.destination,
+                transition, comment)
         else:
             if transition.source is None:
                 self.state(self.context).initialize()
             # execute any side effect
             if side_effect is not None:
                 side_effect(self.context)
-            event = WorkflowTransitionEvent(self.context,
-                                            transition.source,
-                                            transition.destination,
-                                            transition, comment)
+            event = WorkflowTransitionEvent(
+                self.context,
+                transition.source,
+                transition.destination,
+                transition, comment)
         # change state of context or new object
         state.setState(transition.destination)
         notify(event)
@@ -196,10 +212,14 @@ class WorkflowInfo(object):
             notify(ObjectModifiedEvent(result))
         return result
 
-    def fireTransitionToward(self, state, comment=None, side_effect=None,
+    def fireTransitionToward(self,
+                             state,
+                             comment=None,
+                             side_effect=None,
                              check_security=True):
-        transition_ids = self.getFireableTransitionIdsToward(state,
-                                                             check_security)
+        transition_ids = self.getFireableTransitionIdsToward(
+            state,
+            check_security)
         if not transition_ids:
             raise interfaces.NoTransitionAvailableError(
                 self.state(self.context).getState(),
@@ -209,7 +229,9 @@ class WorkflowInfo(object):
                 self.state(self.context).getState(),
                 state)
         return self.fireTransition(transition_ids[0],
-                                   comment, side_effect, check_security)
+                                   comment,
+                                   side_effect,
+                                   check_security)
 
     def fireTransitionForVersions(self, state, transition_id):
         id = self.state(self.context).getId()
@@ -284,8 +306,9 @@ class WorkflowInfo(object):
         return [transition for transition in transitions if
                 transition.trigger == trigger]
 
+
+@implementer(IWorkflowVersions)
 class WorkflowVersions(object):
-    implements(IWorkflowVersions)
 
     def getVersions(self, state, id):
         raise NotImplementedError
@@ -295,10 +318,9 @@ class WorkflowVersions(object):
 
     def createVersionId(self):
         while True:
-            id = random.randrange(sys.maxint)
+            id = random.randrange(sys.maxsize)
             if not self.hasVersionId(id):
                 return id
-        assert False, "Shouldn't ever reach here"
 
     def hasVersion(self, state, id):
         raise NotImplementedError
@@ -310,8 +332,9 @@ class WorkflowVersions(object):
         for version in self.getVersionsWithAutomaticTransitions():
             IWorkflowInfo(version).fireAutomatic()
 
+
+@implementer(interfaces.IWorkflowTransitionEvent)
 class WorkflowTransitionEvent(ObjectEvent):
-    implements(interfaces.IWorkflowTransitionEvent)
 
     def __init__(self, object, source, destination, transition, comment):
         super(WorkflowTransitionEvent, self).__init__(object)
@@ -320,8 +343,9 @@ class WorkflowTransitionEvent(ObjectEvent):
         self.transition = transition
         self.comment = comment
 
+
+@implementer(interfaces.IWorkflowVersionTransitionEvent)
 class WorkflowVersionTransitionEvent(WorkflowTransitionEvent):
-    implements(interfaces.IWorkflowVersionTransitionEvent)
 
     def __init__(self, object, old_object, source, destination,
                  transition, comment):
