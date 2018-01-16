@@ -33,6 +33,8 @@ class WorkflowTestCase(unittest.TestCase):
 
 class WorkflowInfoTestCase(unittest.TestCase):
 
+    tearDown = zope.component.testing.tearDown
+
     def setUp(self):
         zope.component.provideAdapter(
             workflow.WorkflowState,
