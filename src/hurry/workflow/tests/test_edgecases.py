@@ -1,7 +1,7 @@
 import unittest
 from hurry.workflow import interfaces, workflow
 
-from zope import component
+import zope.component
 from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.annotation import attribute
 from zope.annotation import interfaces as annotation_interfaces
@@ -9,7 +9,6 @@ from zope.annotation import interfaces as annotation_interfaces
 from zope.interface import implementer, Attribute
 
 from hurry.workflow.tests.test_doctest import WorkflowVersions
-
 
 """Increase test coverage without polluting doctest."""
 
@@ -35,19 +34,19 @@ class WorkflowTestCase(unittest.TestCase):
 class WorkflowInfoTestCase(unittest.TestCase):
 
     def setUp(self):
-        component.provideAdapter(
+        zope.component.provideAdapter(
             workflow.WorkflowState,
             (annotation_interfaces.IAnnotatable,),
             interfaces.IWorkflowState)
-        component.provideAdapter(
+        zope.component.provideAdapter(
             workflow.WorkflowInfo,
             (annotation_interfaces.IAnnotatable,),
             interfaces.IWorkflowInfo)
-        component.provideAdapter(
+        zope.component.provideAdapter(
             attribute.AttributeAnnotations,
             (annotation_interfaces.IAttributeAnnotatable,),
             annotation_interfaces.IAnnotations)
-        component.provideUtility(
+        zope.component.provideUtility(
             WorkflowVersions(),
             interfaces.IWorkflowVersions)
 
@@ -79,7 +78,7 @@ class WorkflowInfoTestCase(unittest.TestCase):
             trigger=interfaces.MANUAL)
 
         self.wf = workflow.Workflow([self.to_a, self.a_to_b])
-        component.provideUtility(
+        zope.component.provideUtility(
             self.wf, interfaces.IWorkflow)
 
         self.document = Document('Foo')
@@ -116,7 +115,7 @@ class WorkflowInfoTestCase(unittest.TestCase):
 
     def test_fireTransitionForVersions_version_is_context(self):
         self.info.fireTransition('to_a')
-        wf_versions = component.getUtility(interfaces.IWorkflowVersions)
+        wf_versions = zope.component.getUtility(interfaces.IWorkflowVersions)
         wf_versions.addVersion(self.document)
         self.info.fireTransitionForVersions(self.state.getState(),
                                             'a_to_b')
