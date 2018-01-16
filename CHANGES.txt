@@ -1,10 +1,12 @@
 CHANGES
 =======
 
-0.14 (unreleased)
+3.0 (unreleased)
 -----------------
 
 - Update dependencies not to rely on ZODB 3 anymore.
+
+- Support python3.4, python3.5, python3.6 in addition to python2.7.
 
 0.13.1 (2013-01-17)
 -------------------
