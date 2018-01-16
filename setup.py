@@ -11,12 +11,12 @@ long_description = (
     read('CHANGES.txt')
     + '\n' +
     'Detailed Documentation\n'
-    '**********************\n'
+    '======================\n'
     + '\n' +
     read('src', 'hurry', 'workflow', 'workflow.txt')
     + '\n' +
     'Download\n'
-    '********\n'
+    '========\n'
     )
 
 setup(
