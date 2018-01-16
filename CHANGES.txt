@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-3.0 (unreleased)
------------------
+3.0.0 (2018-01-16)
+------------------
 
 - Update dependencies not to rely on ZODB 3 anymore.
 
