@@ -21,7 +21,7 @@ long_description = (
 
 setup(
     name="hurry.workflow",
-    version='3.0.2',
+    version='3.0.3.dev0',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     namespace_packages=['hurry'],
