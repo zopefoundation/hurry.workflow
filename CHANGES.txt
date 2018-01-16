@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.0.1 (unreleased)
+3.0.1 (2018-01-16)
 ------------------
 
 - Fix up a brown paper bag release.
