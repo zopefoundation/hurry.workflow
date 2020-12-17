@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
+
 long_description = (
     read('README.txt')
     + '\n' +
@@ -17,11 +18,11 @@ long_description = (
     + '\n' +
     'Download\n'
     '========\n'
-    )
+)
 
 setup(
     name="hurry.workflow",
-    version='3.0.3.dev0',
+    version='3.1.0.dev0',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     namespace_packages=['hurry'],
@@ -46,14 +47,16 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Zope :: 3',
-        ],
+    ],
     extras_require=dict(
         test=[],
     ),
@@ -66,4 +69,4 @@ setup(
         'zope.annotation',
         'zope.lifecycleevent'
     ],
-    )
+)
