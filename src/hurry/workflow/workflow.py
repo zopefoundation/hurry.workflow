@@ -11,7 +11,7 @@ from zope import component
 
 from zope.annotation.interfaces import IAnnotations
 from zope.lifecycleevent import ObjectModifiedEvent
-from zope.component.interfaces import ObjectEvent
+from zope.interface.interfaces import ObjectEvent
 
 from hurry.workflow import interfaces
 from hurry.workflow.interfaces import MANUAL, AUTOMATIC, SYSTEM
