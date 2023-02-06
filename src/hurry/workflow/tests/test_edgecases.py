@@ -20,7 +20,7 @@ class IDocument(IAttributeAnnotatable):
 
 
 @implementer(IDocument)
-class Document(object):
+class Document:
 
     def __init__(self, title):
         self.title = title

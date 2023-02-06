@@ -57,6 +57,7 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Zope :: 3',
     ],
+    python_requires='>=3.7',
     extras_require=dict(
         test=[],
     ),
