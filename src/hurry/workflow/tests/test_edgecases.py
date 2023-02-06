@@ -1,14 +1,16 @@
 import unittest
-from hurry.workflow import interfaces, workflow
 
 import zope.component
-from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.annotation import attribute
 from zope.annotation import interfaces as annotation_interfaces
+from zope.annotation.interfaces import IAttributeAnnotatable
+from zope.interface import Attribute
+from zope.interface import implementer
 
-from zope.interface import implementer, Attribute
-
+from hurry.workflow import interfaces
+from hurry.workflow import workflow
 from hurry.workflow.tests.test_doctest import WorkflowVersions
+
 
 """Increase test coverage without polluting doctest."""
 

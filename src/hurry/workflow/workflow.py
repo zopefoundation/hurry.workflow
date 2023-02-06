@@ -2,23 +2,27 @@ import functools
 import random
 import sys
 
-from zope.interface import implementer
-from zope.event import notify
-from zope.security.checker import CheckerPublic
-from zope.security.interfaces import NoInteraction, Unauthorized
-from zope.security.management import getInteraction
 from zope import component
-
 from zope.annotation.interfaces import IAnnotations
-from zope.lifecycleevent import ObjectModifiedEvent
+from zope.event import notify
+from zope.interface import implementer
 from zope.interface.interfaces import ObjectEvent
+from zope.lifecycleevent import ObjectModifiedEvent
+from zope.security.checker import CheckerPublic
+from zope.security.interfaces import NoInteraction
+from zope.security.interfaces import Unauthorized
+from zope.security.management import getInteraction
 
 from hurry.workflow import interfaces
-from hurry.workflow.interfaces import MANUAL, AUTOMATIC, SYSTEM
-from hurry.workflow.interfaces import (
-    IWorkflow, IWorkflowState, IWorkflowInfo, IWorkflowVersions)
-from hurry.workflow.interfaces import (
-    InvalidTransitionError, ConditionFailedError)
+from hurry.workflow.interfaces import AUTOMATIC
+from hurry.workflow.interfaces import MANUAL
+from hurry.workflow.interfaces import SYSTEM
+from hurry.workflow.interfaces import ConditionFailedError
+from hurry.workflow.interfaces import InvalidTransitionError
+from hurry.workflow.interfaces import IWorkflow
+from hurry.workflow.interfaces import IWorkflowInfo
+from hurry.workflow.interfaces import IWorkflowState
+from hurry.workflow.interfaces import IWorkflowVersions
 
 
 def NullCondition(wf, context):

@@ -1,5 +1,7 @@
-from zope.interface import Interface, Attribute
+from zope.interface import Attribute
+from zope.interface import Interface
 from zope.interface.interfaces import IObjectEvent
+
 
 MANUAL = 0
 AUTOMATIC = 1

@@ -2,10 +2,12 @@ import doctest
 import unittest
 
 from zope import component
-from zope.component import testing
-from zope.annotation import interfaces as annotation_interfaces
 from zope.annotation import attribute
-from hurry.workflow import interfaces, workflow
+from zope.annotation import interfaces as annotation_interfaces
+from zope.component import testing
+
+from hurry.workflow import interfaces
+from hurry.workflow import workflow
 
 
 class WorkflowVersions(workflow.WorkflowVersions):

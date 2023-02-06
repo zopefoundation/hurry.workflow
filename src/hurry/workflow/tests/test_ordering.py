@@ -1,4 +1,5 @@
 import unittest
+
 from hurry.workflow.workflow import Transition
 
 
