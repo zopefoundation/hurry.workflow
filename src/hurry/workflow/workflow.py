@@ -2,23 +2,27 @@ import functools
 import random
 import sys
 
-from zope.interface import implementer
-from zope.event import notify
-from zope.security.checker import CheckerPublic
-from zope.security.interfaces import NoInteraction, Unauthorized
-from zope.security.management import getInteraction
 from zope import component
-
 from zope.annotation.interfaces import IAnnotations
-from zope.lifecycleevent import ObjectModifiedEvent
+from zope.event import notify
+from zope.interface import implementer
 from zope.interface.interfaces import ObjectEvent
+from zope.lifecycleevent import ObjectModifiedEvent
+from zope.security.checker import CheckerPublic
+from zope.security.interfaces import NoInteraction
+from zope.security.interfaces import Unauthorized
+from zope.security.management import getInteraction
 
 from hurry.workflow import interfaces
-from hurry.workflow.interfaces import MANUAL, AUTOMATIC, SYSTEM
-from hurry.workflow.interfaces import (
-    IWorkflow, IWorkflowState, IWorkflowInfo, IWorkflowVersions)
-from hurry.workflow.interfaces import (
-    InvalidTransitionError, ConditionFailedError)
+from hurry.workflow.interfaces import AUTOMATIC
+from hurry.workflow.interfaces import MANUAL
+from hurry.workflow.interfaces import SYSTEM
+from hurry.workflow.interfaces import ConditionFailedError
+from hurry.workflow.interfaces import InvalidTransitionError
+from hurry.workflow.interfaces import IWorkflow
+from hurry.workflow.interfaces import IWorkflowInfo
+from hurry.workflow.interfaces import IWorkflowState
+from hurry.workflow.interfaces import IWorkflowVersions
 
 
 def NullCondition(wf, context):
@@ -36,7 +40,7 @@ def nullCheckPermission(permission, principal_id):
 
 
 @functools.total_ordering
-class Transition(object):
+class Transition:
 
     def __init__(self, transition_id, title, source, destination,
                  condition=NullCondition,
@@ -69,7 +73,7 @@ class Transition(object):
 # You can choose to create a subclass in your own code that
 # mixes these in if you need persistent workflow
 @implementer(IWorkflow)
-class Workflow(object):
+class Workflow:
 
     def __init__(self, transitions):
         self.refresh(transitions)
@@ -103,7 +107,7 @@ class Workflow(object):
 
 
 @implementer(IWorkflowState)
-class WorkflowState(object):
+class WorkflowState:
     state_key = "hurry.workflow.state"
     id_key = "hurry.workflow.id"
 
@@ -135,7 +139,7 @@ class WorkflowState(object):
 
 
 @implementer(IWorkflowInfo)
-class WorkflowInfo(object):
+class WorkflowInfo:
     name = ''
 
     def __init__(self, context):
@@ -308,7 +312,7 @@ class WorkflowInfo(object):
 
 
 @implementer(IWorkflowVersions)
-class WorkflowVersions(object):
+class WorkflowVersions:
 
     def getVersions(self, state, id):
         raise NotImplementedError
@@ -337,7 +341,7 @@ class WorkflowVersions(object):
 class WorkflowTransitionEvent(ObjectEvent):
 
     def __init__(self, object, source, destination, transition, comment):
-        super(WorkflowTransitionEvent, self).__init__(object)
+        super().__init__(object)
         self.source = source
         self.destination = destination
         self.transition = transition
@@ -349,6 +353,6 @@ class WorkflowVersionTransitionEvent(WorkflowTransitionEvent):
 
     def __init__(self, object, old_object, source, destination,
                  transition, comment):
-        super(WorkflowVersionTransitionEvent, self).__init__(
+        super().__init__(
             object, source, destination, transition, comment)
         self.old_object = old_object

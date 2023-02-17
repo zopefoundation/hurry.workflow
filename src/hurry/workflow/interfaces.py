@@ -1,5 +1,7 @@
-from zope.interface import Interface, Attribute
+from zope.interface import Attribute
+from zope.interface import Interface
 from zope.interface.interfaces import IObjectEvent
+
 
 MANUAL = 0
 AUTOMATIC = 1
@@ -16,21 +18,21 @@ class InvalidTransitionError(Exception):
 
 class NoTransitionAvailableError(InvalidTransitionError):
     def __init__(self, source, destination):
-        super(NoTransitionAvailableError, self).__init__(source)
+        super().__init__(source)
         self.destination = destination
 
     def __str__(self):
-        return 'source: "%s" destination: "%s"' % (
+        return 'source: "{}" destination: "{}"'.format(
             self.source, self.destination)
 
 
 class AmbiguousTransitionError(InvalidTransitionError):
     def __init__(self, source, destination):
-        super(AmbiguousTransitionError, self).__init__(source)
+        super().__init__(source)
         self.destination = destination
 
     def __str__(self):
-        return 'source: "%s" destination: "%s"' % (
+        return 'source: "{}" destination: "{}"'.format(
             self.source, self.destination)
 
 
